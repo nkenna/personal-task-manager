@@ -166,10 +166,34 @@ class _AddTaskPageState extends ConsumerState<AddTaskPage> {
     );
   }
 
+  String _initials(String name) {
+    final parts = name
+        .trim()
+        .split(RegExp(r'\s+'))
+        .where((part) => part.isNotEmpty)
+        .toList();
+    if (parts.isEmpty) return '?';
+    if (parts.length == 1) return parts[0][0].toUpperCase();
+    return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final profile = ref.watch(activeProfileProvider).value;
     return Scaffold(
-      appBar: AppBar(title: const Text('New Task')),
+      appBar: AppBar(title: Text('New Task', style: GoogleFonts.poppins(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
+          ),), actions: [
+            
+            Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: CircleAvatar(
+                  child: Text(_initials(profile!.name)),
+                ),
+            ),
+          ],),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -177,6 +201,17 @@ class _AddTaskPageState extends ConsumerState<AddTaskPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+               Text(
+                'Create a new task',
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black,
+                ),
+              ),
+              const SizedBox(height: 24),
+              
+
               _titleField(),
 
               const SizedBox(height: 16),

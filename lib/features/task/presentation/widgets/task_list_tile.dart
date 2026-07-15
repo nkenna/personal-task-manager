@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:ptm/core/extensions/string_extension.dart';
 import 'package:ptm/features/task/domain/entities/task.dart';
 
-Color taskTitleColor(Task task) => switch (task.status) {
+Color taskStatusColor(Task task) => switch (task.status) {
       TaskStatus.pending => Colors.amber,
       TaskStatus.ongoing => Colors.orange,
       TaskStatus.completed => Colors.green,
@@ -24,31 +24,60 @@ class TaskListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      onTap: onTap == null ? null : () => onTap!(task),
-      title: Text(
-        task.title.capitalizeFirst(),
-        style: GoogleFonts.poppins(
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-          color: taskTitleColor(task),
-        ),
+    final accent = taskStatusColor(task);
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      elevation: 0,
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: Colors.black.withAlpha(12)),
       ),
-      subtitle: Text(
-        task.description,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: GoogleFonts.poppins(
-          fontSize: 14,
-          fontWeight: FontWeight.w400,
-          color: Colors.black,
-        ),
-      ),
-      trailing: onSelected == null
-          ? null
-          : Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap == null ? null : () => onTap!(task),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 4,
+                height: 40,
+                margin: const EdgeInsets.only(right: 12, top: 2),
+                decoration: BoxDecoration(
+                  color: accent,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      task.title.capitalizeFirst(),
+                      style: GoogleFonts.poppins(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: taskStatusColor(task),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      task.description,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.poppins(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.grey[700],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              if (onSelected != null)
                 PopupMenuButton<String>(
                   onSelected: (value) => onSelected!(context, task, value),
                   itemBuilder: (_) => const [
@@ -66,8 +95,10 @@ class TaskListTile extends StatelessWidget {
                     ),
                   ],
                 ),
-              ],
-            ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

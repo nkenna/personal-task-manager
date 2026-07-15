@@ -40,12 +40,18 @@ class LandingPage extends ConsumerWidget {
     return DefaultTabController(
       length: _tabs.length,
       child: Scaffold(
+        backgroundColor: const Color(0xFFF5F5F7),
         appBar: AppBar(
-          title: Text("Tasks", style: GoogleFonts.poppins(
-            fontSize: 20,
-            fontWeight: FontWeight.w500,
-            color: Colors.black,
-          ),),
+          title: Text(
+            "Tasks",
+            style: GoogleFonts.poppins(
+              fontSize: 22,
+              fontWeight: FontWeight.w600,
+              color: Colors.black,
+            ),
+          ),
+          backgroundColor: Colors.white,
+          elevation: 0,
           actions: [
             IconButton(
               icon: const Icon(Icons.search),
@@ -71,31 +77,36 @@ class LandingPage extends ConsumerWidget {
             isScrollable: true,
             labelStyle: GoogleFonts.poppins(
               fontSize: 14,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w600,
               color: Colors.black,
             ),
             unselectedLabelStyle: GoogleFonts.poppins(
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: Colors.black.withAlpha(100),
+              color: Colors.grey[600],
             ),
+            indicatorColor: Colors.black,
+            labelColor: Colors.black,
             tabs: _tabs.map((tab) => Tab(text: tab.label)).toList(),
           ),
         ),
         body: TabBarView(
           children: _tabs
               .map(
-                (tab) => _TaskList(
-                  status: tab.status,
-                  onTap: (task) {
-                    if (task.id != null) {
-                      ref
-                          .read(appRouterDelegateProvider)
-                          .showTaskDetails(task.id!);
-                    }
-                  },
-                  onSelected: (context, task, value) =>
-                      _onMenuItemSelected(context, ref, task, value),
+                (tab) => Container(
+                  color: const Color(0xFFF5F5F7),
+                  child: _TaskList(
+                    status: tab.status,
+                    onTap: (task) {
+                      if (task.id != null) {
+                        ref
+                            .read(appRouterDelegateProvider)
+                            .showTaskDetails(task.id!);
+                      }
+                    },
+                    onSelected: (context, task, value) =>
+                        _onMenuItemSelected(context, ref, task, value),
+                  ),
                 ),
               )
               .toList(),
@@ -155,9 +166,35 @@ class _TaskList extends ConsumerWidget {
         final filtered = status == null
             ? list
             : list.where((task) => task.status == status).toList();
+            
 
         if (filtered.isEmpty) {
-          return const Center(child: Text('No tasks found. Add a new task.'));
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.inbox_rounded, size: 64, color: Colors.grey[300]),
+                const SizedBox(height: 16),
+                Text(
+                  'No tasks found',
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.grey[700],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Tap + to create your first task',
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                    color: Colors.grey[500],
+                  ),
+                ),
+              ],
+            ),
+          );
         }
 
         return ListView.separated(
