@@ -111,6 +111,31 @@ sqflite
 - **Presentation layer**: depends on domain; Riverpod providers wire usecases to the UI.
 - **Core layer**: shared infrastructure (database, navigation, extensions, base classes).
 
+## Challenges
+
+### 1. Persistence choice: Hive was no longer an option
+I initially wanted to use **Hive** for local storage because of its lightweight, NoSQL-like API and strong Flutter integration. However, at the time of building this project, the Hive package on pub.dev was no longer being actively maintained. That made it a risky long-term choice for a personal project meant to be reliable offline-first. I switched to **sqflite** instead, which gave me:
+- A mature, well-maintained SQLite wrapper
+- Full control over schema and foreign keys
+- Compatibility with standard SQL tooling and future migration paths
+
+The trade-off was more boilerplate (tables, queries, migrations), but it kept the data layer stable and explicit.
+
+### 2. No Figma/UI design: designing UX from scratch
+I did not have a Figma file or a designer's input for this project. Every screen — from the first-launch profile creation to the task list tabs, status chips, avatars, and search — was designed by hand. That meant spending extra time thinking through:
+- How a user should move between profile switching and task management
+- Whether status changes should be inline, dialog-based, or navigational
+- How search results should relate to the existing list UI
+- Color and icon choices that feel consistent without a design system
+
+Without a reference, I iterated on the UI directly in code, refining spacing, typography, and component reuse (e.g., shared `TaskListTile`) along the way. This slowed initial development but resulted in a cohesive, self-consistent interface.
+
+## Assumptions
+
+- **Profiles are required to personalize task management**: I assumed the app would be used by more than one person on the same device, or by one person managing distinct contexts (personal vs work). Without a profile layer, every task would live in one flat list, with no way to separate or switch contexts. Profiles give each user or context their own task space, active-profile switching, and scoped task views — making the app genuinely multi-user and multi-context from day one.
+- **Status tracking is part of the core workflow**: I assumed users would want to move tasks through stages (Pending → Ongoing → Completed/Cancelled) and keep a record of those transitions. That assumption drove the `task_history` table and the status picker UI.
+- **Offline-first local storage**: I assumed the app would be used primarily offline, so a local SQLite database was sufficient. No cloud sync was planned initially, which kept the architecture simple and dependency-free.
+
 ## Features
 
 ### Profiles
@@ -135,6 +160,22 @@ sqflite
 
 ### History
 - **Task History**: every status change is recorded automatically with a timestamp and remark (e.g., "Status changed to completed"). The task details screen shows a chronological history list.
+
+## Testing
+
+The project includes unit tests for model mappings, string extensions, and usecases. Run them with:
+
+```bash
+flutter test
+```
+
+**Coverage**
+- **Model mapping**: `TaskModel`, `ProfileModel`, `TaskHistoryModel` — round-trip `fromMap`/`toMap` and entity conversion.
+- **String extension**: `capitalizeFirst` behavior for empty, lowercase, and already-capitalized strings.
+- **Profile usecases** (fake repository): add, update, delete, list, get active, set active.
+- **Task usecases** (fake repository): add, edit, delete, list, change status, search.
+
+Tests use in-memory fake repositories — no database or Flutter widget tests are required.
 
 ## Database Schema
 
